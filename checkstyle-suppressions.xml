@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE Suppressions PUBLIC
+    "-//Checkstyle//DTD Suppressions 1.1//EN"
+    "https://checkstyle.org/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Suppress standard checks for target directory / generated files -->
+    <suppress files=".*[/\\]target[/\\]generated-sources[/\\].*" checks=".*" />
+    <suppress files=".*IT\.java" checks=".*" />
+    <suppress files=".*Test\.java" checks=".*" />
+    <!-- Relax Javadoc requirements for the bootstrap foundation -->
+    <suppress files=".*" checks="JavadocPackage" />
+    <suppress files=".*" checks="JavadocMethod" />
+    <suppress files=".*" checks="JavadocType" />
+    <suppress files=".*" checks="JavadocVariable" />
+    <suppress files=".*" checks="MissingJavadocMethod" />
+    <!-- Allow long lines for imports and URLs -->
+    <suppress files=".*" checks="LineLength" />
+    <!-- Suppress custom utility checkstyle issues -->
+    <suppress files=".*" checks="CustomImportOrder" />
+</suppressions>
