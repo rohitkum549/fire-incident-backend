@@ -21,9 +21,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify baseline Maven `pom.xml` dependencies and properties configuration in pom.xml
-- [ ] T002 Configure Checkstyle and JaCoCo Maven plugins inside build plugins section of pom.xml
-- [ ] T003 [P] Add checkstyle-suppressions.xml in the project root to ignore strict Javadoc style checks
+- [x] T001 Verify baseline Maven `pom.xml` dependencies and properties configuration in pom.xml
+- [x] T002 Configure Checkstyle and JaCoCo Maven plugins inside build plugins section of pom.xml
+- [x] T003 [P] Add checkstyle-suppressions.xml in the project root to ignore strict Javadoc style checks
 
 ---
 
@@ -33,11 +33,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup Flyway schema migrations file src/main/resources/db/migration/V1__initial_schema.sql
-- [ ] T005 Setup JPA Auditing and DatabaseConfig in src/main/java/com/company/firemanagement/config/DatabaseConfig.java
-- [ ] T006 [P] Implement CorrelationFilter servlet filter in src/main/java/com/company/firemanagement/common/logging/CorrelationFilter.java
-- [ ] T007 Configure GlobalExceptionHandler for REST error mappings in src/main/java/com/company/firemanagement/common/exception/GlobalExceptionHandler.java
-- [ ] T008 Configure application.yml profile settings (dev, test, prod) in src/main/resources/application.yml
+- [x] T004 Setup Flyway schema migrations file src/main/resources/db/migration/V1__initial_schema.sql
+- [x] T005 Setup JPA Auditing and DatabaseConfig in src/main/java/com/company/firemanagement/config/DatabaseConfig.java
+- [x] T006 [P] Implement CorrelationFilter servlet filter in src/main/java/com/company/firemanagement/common/logging/CorrelationFilter.java
+- [x] T007 Configure GlobalExceptionHandler for REST error mappings in src/main/java/com/company/firemanagement/common/exception/GlobalExceptionHandler.java
+- [x] T008 Configure application.yml profile settings (dev, test, prod) in src/main/resources/application.yml
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -51,10 +51,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Create HealthCheckLog JPA Entity in src/main/java/com/company/firemanagement/domains/health/entity/HealthCheckLog.java
-- [ ] T010 [P] [US1] Create HealthCheckLogRepository JPA Repository in src/main/java/com/company/firemanagement/domains/health/repository/HealthCheckLogRepository.java
-- [ ] T011 [US1] Implement HealthCheckController database E2E ping endpoint in src/main/java/com/company/firemanagement/domains/health/controller/HealthCheckController.java
-- [ ] T012 [US1] Write HealthCheckControllerIT test case verifying database write-read flow using Testcontainers in src/test/java/com/company/firemanagement/domains/health/controller/HealthCheckControllerIT.java
+- [x] T009 [P] [US1] Create HealthCheckLog JPA Entity in src/main/java/com/company/firemanagement/domains/health/entity/HealthCheckLog.java
+- [x] T010 [P] [US1] Create HealthCheckLogRepository JPA Repository in src/main/java/com/company/firemanagement/domains/health/repository/HealthCheckLogRepository.java
+- [x] T011 [US1] Implement HealthCheckController database E2E ping endpoint in src/main/java/com/company/firemanagement/domains/health/controller/HealthCheckController.java
+- [x] T012 [US1] Write HealthCheckControllerIT test case verifying database write-read flow using Testcontainers in src/test/java/com/company/firemanagement/domains/health/controller/HealthCheckControllerIT.java
 
 **Checkpoint**: At this point, User Story 1 is fully functional and testable independently.
 
@@ -68,10 +68,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Create UserPrincipal model representing security context in src/main/java/com/company/firemanagement/security/principal/UserPrincipal.java
-- [ ] T014 [US2] Implement JwtTokenProvider parsing and validating bearer claims in src/main/java/com/company/firemanagement/security/jwt/JwtTokenProvider.java
-- [ ] T015 [US2] Configure JwtAuthenticationFilter in Spring Security chain in src/main/java/com/company/firemanagement/security/jwt/JwtAuthenticationFilter.java
-- [ ] T016 [US2] Configure Web CORS allowed origins mapping in src/main/java/com/company/firemanagement/config/SecurityConfig.java
+- [x] T013 [P] [US2] Create UserPrincipal model representing security context in src/main/java/com/company/firemanagement/security/principal/UserPrincipal.java
+- [x] T014 [US2] Implement JwtTokenProvider parsing and validating bearer claims in src/main/java/com/company/firemanagement/security/jwt/JwtTokenProvider.java
+- [x] T015 [US2] Configure JwtAuthenticationFilter in Spring Security chain in src/main/java/com/company/firemanagement/security/jwt/JwtAuthenticationFilter.java
+- [x] T016 [US2] Configure Web CORS allowed origins mapping in src/main/java/com/company/firemanagement/config/SecurityConfig.java
 
 **Checkpoint**: At this point, User Stories 1 AND 2 work independently.
 
@@ -85,8 +85,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T017 [US3] Enable Actuator Health readiness and liveness probes in src/main/resources/application.yml
-- [ ] T018 [US3] Verify prometheus scraper configuration metrics endpoint in src/main/resources/application.yml and security rules
+- [x] T017 [US3] Enable Actuator Health readiness and liveness probes in src/main/resources/application.yml
+- [x] T018 [US3] Verify prometheus scraper configuration metrics endpoint in src/main/resources/application.yml and security rules
 
 **Checkpoint**: All user stories are independently functional.
 
@@ -96,10 +96,10 @@
 
 **Purpose**: Finalize packaging, automated compilation workflows, and developer guides.
 
-- [ ] T019 Uncomment and complete multi-stage Docker build configurations in Dockerfile
-- [ ] T020 Create GitHub Actions CI/CD workflows run verification in .github/workflows/ci-cd.yml
-- [ ] T021 [P] Write ARTIFACTS documentation (ARCHITECTURE.md, DEVELOPMENT.md, SECURITY.md, API_GUIDELINES.md)
-- [ ] T022 Overwrite README.md with unified developer quickstart guides in README.md
+- [x] T019 Uncomment and complete multi-stage Docker build configurations in Dockerfile
+- [x] T020 Create GitHub Actions CI/CD workflows run verification in .github/workflows/ci-cd.yml
+- [x] T021 [P] Write ARTIFACTS documentation (ARCHITECTURE.md, DEVELOPMENT.md, SECURITY.md, API_GUIDELINES.md)
+- [x] T022 Overwrite README.md with unified developer quickstart guides in README.md
 
 ---
 
