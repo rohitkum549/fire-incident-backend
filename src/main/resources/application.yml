@@ -45,7 +45,7 @@ spring:
         jwt:
           issuer-uri: ${JWT_ISSUER:http://localhost:8080}
           # jwk-set-uri can be explicitly set if public key endpoint is required directly
-          jwk-set-uri: ${JWT_JWK_SET_URI:}
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/dummy-jwk}
 
   servlet:
     multipart:

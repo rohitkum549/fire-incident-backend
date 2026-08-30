@@ -44,7 +44,9 @@ public class DotenvEnvironmentPostProcessor implements EnvironmentPostProcessor 
                         value = value.substring(1, value.length() - 1);
                     }
                     
-                    dotenvProperties.put(key, value);
+                    if (!value.isEmpty()) {
+                        dotenvProperties.put(key, value);
+                    }
                 }
             }
         } catch (IOException e) {
