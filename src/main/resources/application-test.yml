@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    # Use standard H2 database if needed, or let Testcontainers configure database dynamically
+    url: jdbc:postgresql://localhost:5432/fire_management_test
+    username: test
+    password: test
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+  flyway:
+    enabled: true
+    clean-disabled: false # Allow cleaning in test environment if needed
+
+logging:
+  level:
+    root: WARN
+    com.company.firemanagement: DEBUG
+    org.springframework.security: INFO

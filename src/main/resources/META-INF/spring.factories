@@ -1,0 +1,2 @@
+# Spring Boot EnvironmentPostProcessor registration
+org.springframework.boot.env.EnvironmentPostProcessor=com.company.firemanagement.config.DotenvEnvironmentPostProcessor

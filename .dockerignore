@@ -1,0 +1,28 @@
+# Build directories
+target/
+*.jar
+*.war
+
+# IDE files and configuration
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+
+# Local environment settings
+.env
+.env.local
+*.log
+
+# Git files
+.git/
+.gitignore
+.gitattributes
+
+# OS system files
+.DS_Store
+Thumbs.db

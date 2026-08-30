@@ -1,0 +1,24 @@
+### E2E Health Check (Public)
+# Verifies REST mapping, PostgreSQL connection status, and transaction-bound auditing fields
+GET http://localhost:8080/api/v1/health
+Accept: application/json
+
+### Actuator Health (Public)
+# Returns liveness, readiness, and basic component checks
+GET http://localhost:8080/actuator/health
+Accept: application/json
+
+### Actuator Prometheus Metrics (Public)
+# Returns system and custom metrics formatted for Prometheus scrapers
+GET http://localhost:8080/actuator/prometheus
+Accept: text/plain
+
+### OpenAPI Specifications JSON (Public)
+# Exposes the OpenAPI v3 spec models for generating clients
+GET http://localhost:8080/v3/api-docs
+Accept: application/json
+
+### Secured Route Verification (Expects 401 Unauthorized ErrorResponse)
+# Verifies that security configurations block requests lacking authentication tokens
+GET http://localhost:8080/api/v1/incidents
+Accept: application/json
