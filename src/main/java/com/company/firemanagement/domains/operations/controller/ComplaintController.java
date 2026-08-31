@@ -2,6 +2,7 @@ package com.company.firemanagement.domains.operations.controller;
 
 import com.company.firemanagement.domains.operations.dto.ComplaintRequest;
 import com.company.firemanagement.domains.operations.dto.ComplaintResponse;
+import com.company.firemanagement.domains.operations.entity.IncidentCategory;
 import com.company.firemanagement.domains.operations.service.ComplaintService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,13 @@ public class ComplaintController {
     public ResponseEntity<List<ComplaintResponse>> getAllComplaints() {
         log.info("REST request to list all complaints");
         List<ComplaintResponse> list = complaintService.getAllComplaints();
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/categories")
+    public ResponseEntity<List<IncidentCategory>> getAllCategories() {
+        log.info("REST request to list all incident categories");
+        List<IncidentCategory> list = complaintService.getAllCategories();
         return ResponseEntity.ok(list);
     }
 }

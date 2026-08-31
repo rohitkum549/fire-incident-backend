@@ -100,4 +100,9 @@ public class ComplaintService {
                 .map(ComplaintResponse::from)
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<IncidentCategory> getAllCategories() {
+        return categoryRepository.findAll();
+    }
 }

@@ -1,13 +1,13 @@
 {
 	"info": {
 		"_postman_id": "b968ac8f-1c4b-4c07-9273-04d112d7c99e",
-		"name": "Fire Management System - Core Operations",
-		"description": "Production-grade Postman collection for the global Fire Management System, covering geography, onboarding, shifts, complaints, and incident lifecycles.",
+		"name": "Fire Management System - E2E Step-by-Step Flow",
+		"description": "Step-by-step developer workflow verifying the Fire Management System lifecycle: Geography Setup -> Staff Onboarding -> Authentication -> Shift Proximity Logging -> Complaint escalation -> Incident lifecycle tracking.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "Health & Diagnostics",
+			"name": "0. Diagnostics & Health",
 			"item": [
 				{
 					"name": "E2E Health Verification",
@@ -25,55 +25,52 @@
 								"health"
 							]
 						},
-						"description": "Hits the public health verification endpoint, performing a write/read roundtrip to PostgreSQL and validating JPA auditing."
+						"description": "Checks system diagnostics and database roundtrip."
 					},
 					"response": []
 				},
 				{
-					"name": "Actuator Health",
+					"name": "Fetch Incident Categories",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.length > 0) {",
+									"    pm.collectionVariables.set(\"categoryId\", jsonData[0].id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/actuator/health",
+							"raw": "{{baseUrl}}/api/v1/complaints/categories",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"actuator",
-								"health"
+								"api",
+								"v1",
+								"complaints",
+								"categories"
 							]
 						},
-						"description": "Checks system liveness, readiness, and basic component indicators."
-					},
-					"response": []
-				},
-				{
-					"name": "OpenAPI Spec JSON",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/v3/api-docs",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"v3",
-								"api-docs"
-							]
-						},
-						"description": "Exposes the raw OpenAPI 3.0 spec JSON."
+						"description": "Fetches seeded categories and populates categoryId."
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "Geography & Stations",
+			"name": "1. Setup Geography & Jurisdiction",
 			"item": [
 				{
-					"name": "Register Country",
+					"name": "1.1 Register Country",
 					"event": [
 						{
 							"listen": "test",
@@ -112,12 +109,12 @@
 								"countries"
 							]
 						},
-						"description": "Registers a country boundary."
+						"description": "Initializes the root country boundary."
 					},
 					"response": []
 				},
 				{
-					"name": "Register State",
+					"name": "1.2 Register State",
 					"event": [
 						{
 							"listen": "test",
@@ -156,12 +153,12 @@
 								"states"
 							]
 						},
-						"description": "Registers a state boundary linked to country."
+						"description": "Registers a state linked to the newly created country."
 					},
 					"response": []
 				},
 				{
-					"name": "Register City",
+					"name": "1.3 Register City",
 					"event": [
 						{
 							"listen": "test",
@@ -200,12 +197,12 @@
 								"cities"
 							]
 						},
-						"description": "Registers a city linked to state."
+						"description": "Registers a city linked to the state."
 					},
 					"response": []
 				},
 				{
-					"name": "Create Fire Station",
+					"name": "1.4 Create Fire Station",
 					"event": [
 						{
 							"listen": "test",
@@ -243,56 +240,17 @@
 								"stations"
 							]
 						},
-						"description": "Registers a physical fire station core connector."
-					},
-					"response": []
-				},
-				{
-					"name": "Fetch Station",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/stations/{{stationId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stations",
-								"{{stationId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Stations",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/stations",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stations"
-							]
-						}
+						"description": "Creates SFFD Station 1 with coordinate (37.7749, -122.4194) as the master physical connection node."
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "Authentication & Onboarding",
+			"name": "2. Onboarding & Authentication",
 			"item": [
 				{
-					"name": "Register Citizen",
+					"name": "2.1 Register Admin User",
 					"event": [
 						{
 							"listen": "test",
@@ -300,7 +258,7 @@
 								"exec": [
 									"var jsonData = pm.response.json();",
 									"if(jsonData.id) {",
-									"    pm.collectionVariables.set(\"citizenId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"adminId\", jsonData.id);",
 									"}"
 								],
 								"type": "text/javascript"
@@ -317,7 +275,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"username\": \"citizen_jane\",\n    \"email\": \"jane@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\",\n    \"phone_number\": \"+15550199\",\n    \"role_names\": [\"ROLE_CITIZEN\"]\n}"
+							"raw": "{\n    \"username\": \"admin_alice\",\n    \"email\": \"alice@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Smith\",\n    \"phone_number\": \"+15550100\",\n    \"role_names\": [\"ROLE_ADMIN\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-00001\"\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/auth/register",
@@ -331,86 +289,12 @@
 								"register"
 							]
 						},
-						"description": "Onboards a public citizen account."
+						"description": "Registers an administrator with employee profile linked to the fire station."
 					},
 					"response": []
 				},
 				{
-					"name": "Register Firefighter (Employee)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set(\"employeeId\", jsonData.id);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"firefighter_bob\",\n    \"email\": \"bob@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Bob\",\n    \"last_name\": \"Builder\",\n    \"phone_number\": \"+15550299\",\n    \"role_names\": [\"ROLE_FIREFIGHTER\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-99881\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"register"
-							]
-						},
-						"description": "Onboards a firefighter linked to physical station."
-					},
-					"response": []
-				},
-				{
-					"name": "Register Admin (Employee)",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"username\": \"admin_alice\",\n    \"email\": \"alice@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Smith\",\n    \"phone_number\": \"+15550399\",\n    \"role_names\": [\"ROLE_ADMIN\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-11223\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/auth/register",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"register"
-							]
-						},
-						"description": "Onboards a station administrator."
-					},
-					"response": []
-				},
-				{
-					"name": "Login (Fetch JWT Token)",
+					"name": "2.2 Login Admin (Fetch Admin JWT)",
 					"event": [
 						{
 							"listen": "test",
@@ -418,7 +302,95 @@
 								"exec": [
 									"var jsonData = pm.response.json();",
 									"if(jsonData.access_token) {",
-									"    pm.collectionVariables.set(\"bearerToken\", jsonData.access_token);",
+									"    pm.collectionVariables.set(\"adminToken\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin_alice\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in the administrator to retrieve their JWT token. Saves the token to `{{adminToken}}`."
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Register Firefighter User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"firefighterId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"firefighter_bob\",\n    \"email\": \"bob@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Bob\",\n    \"last_name\": \"Builder\",\n    \"phone_number\": \"+15550200\",\n    \"role_names\": [\"ROLE_FIREFIGHTER\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-99881\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registers a firefighter linked to the fire station."
+					},
+					"response": []
+				},
+				{
+					"name": "2.4 Login Firefighter (Fetch Firefighter JWT)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"firefighterToken\", jsonData.access_token);",
 									"}"
 								],
 								"type": "text/javascript"
@@ -449,17 +421,61 @@
 								"login"
 							]
 						},
-						"description": "Authenticates user and returns JWT token."
+						"description": "Logs in the firefighter. Saves the token to `{{firefighterToken}}`."
+					},
+					"response": []
+				},
+				{
+					"name": "2.5 Register Citizen User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"citizenId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"citizen_jane\",\n    \"email\": \"jane@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\",\n    \"phone_number\": \"+15550300\",\n    \"role_names\": [\"ROLE_CITIZEN\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registers a public citizen user."
 					},
 					"response": []
 				}
 			]
 		},
 		{
-			"name": "Employee Shift Management",
+			"name": "3. Firefighter Shift Management",
 			"item": [
 				{
-					"name": "Shift Check-in",
+					"name": "3.1 Shift Check-in",
 					"event": [
 						{
 							"listen": "test",
@@ -480,7 +496,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{bearerToken}}",
+									"value": "{{firefighterToken}}",
 									"type": "string"
 								}
 							]
@@ -494,7 +510,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"employee_id\": \"{{employeeId}}\",\n    \"station_id\": \"{{stationId}}\",\n    \"check_in_latitude\": 37.774900,\n    \"check_in_longitude\": -122.419400\n}"
+							"raw": "{\n    \"employee_id\": \"{{firefighterId}}\",\n    \"station_id\": \"{{stationId}}\",\n    \"check_in_latitude\": 37.774900,\n    \"check_in_longitude\": -122.419400\n}"
 						},
 						"url": {
 							"raw": "{{baseUrl}}/api/v1/shifts/check-in",
@@ -508,19 +524,208 @@
 								"check-in"
 							]
 						},
-						"description": "Creates shift record with ACTIVE status."
+						"description": "Performs shift check-in for the firefighter (Bob). The coordinates match the station coordinates. Sets status to ACTIVE. Saves the shift ID to `{{shiftId}}`."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Incidents & Operations",
+			"item": [
+				{
+					"name": "4.1 Submit Citizen Complaint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"complaintId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"categoryId\", jsonData.categoryId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reporterId\": \"{{citizenId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"severity\": \"HIGH\",\n    \"description\": \"Large smoke billowing from commercial structure near Lafayette St.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/complaints",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"complaints"
+							]
+						},
+						"description": "Citizen reports a fire complaint. Note: Since the categories are seeded automatically at startup (RESIDENTIAL_FIRE, WILDFIRE, HAZMAT, MEDICAL_EMERGENCY), we will extract the first seeded category ID in our verification script."
 					},
 					"response": []
 				},
 				{
-					"name": "Shift Check-out (Within Geofence)",
+					"name": "4.2 Escalate Complaint to Incident",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"incidentId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
 							"bearer": [
 								{
 									"key": "token",
-									"value": "{{bearerToken}}",
+									"value": "{{adminToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"complaintId\": \"{{complaintId}}\",\n    \"stationId\": \"{{stationId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"severity\": \"HIGH\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"notes\": \"Escalated by dispatcher. Dispatching Station 1 Units.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents"
+							]
+						},
+						"description": "Administrator escalates the reported complaint to an incident and assigns it to SFFD Station 1. The complaint's status transitions to APPROVED. The incident starts as DISPATCHED."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Transition Incident to IN_PROGRESS",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{firefighterToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_PROGRESS\",\n    \"notes\": \"Engine 1 has arrived on scene and deployed hose lines.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents",
+								"{{incidentId}}",
+								"status"
+							]
+						},
+						"description": "Bob the Firefighter transitions the incident state to IN_PROGRESS."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Resolve Incident",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{firefighterToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RESOLVED\",\n    \"notes\": \"Structure fire is extinguished. All hot spots cooled. Station 1 units returning to base.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents",
+								"{{incidentId}}",
+								"status"
+							]
+						},
+						"description": "Bob the Firefighter resolves the incident."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Check-out & Wrap-up",
+			"item": [
+				{
+					"name": "5.1 Shift Check-out (Bob the Firefighter)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{firefighterToken}}",
 									"type": "string"
 								}
 							]
@@ -548,288 +753,7 @@
 								"check-out"
 							]
 						},
-						"description": "Checks out employee. Updates status to COMPLETED since distance from station (37.7749, -122.4194) is under 500m."
-					},
-					"response": []
-				},
-				{
-					"name": "Shift Check-out (Geofence Failure)",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"shift_id\": \"{{shiftId}}\",\n    \"check_out_latitude\": 39.774900,\n    \"check_out_longitude\": -122.419400\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/shifts/check-out",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"shifts",
-								"check-out"
-							]
-						},
-						"description": "Checks out employee. Updates status to ABNORMAL since distance is over 500m."
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Incident & Complaint Operations",
-			"item": [
-				{
-					"name": "Submit Complaint (Public / Citizen)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set(\"complaintId\", jsonData.id);",
-									"    pm.collectionVariables.set(\"categoryId\", jsonData.categoryId);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"reporterId\": \"{{citizenId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"severity\": \"HIGH\",\n    \"description\": \"Large smoke billowing from commercial structure.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/complaints",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"complaints"
-							]
-						},
-						"description": "Registers a public complaint. Status: PENDING."
-					},
-					"response": []
-				},
-				{
-					"name": "Escalate Complaint to Incident (Admin)",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"var jsonData = pm.response.json();",
-									"if(jsonData.id) {",
-									"    pm.collectionVariables.set(\"incidentId\", jsonData.id);",
-									"}"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"complaintId\": \"{{complaintId}}\",\n    \"stationId\": \"{{stationId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"severity\": \"HIGH\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"notes\": \"Escalated by dispatcher. Engine 1 dispatched.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/incidents",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"incidents"
-							]
-						},
-						"description": "Creates incident response. Escales complaint status to APPROVED."
-					},
-					"response": []
-				},
-				{
-					"name": "Update Incident Status to IN_PROGRESS",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"IN_PROGRESS\",\n    \"notes\": \"Responding units are active on site.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"incidents",
-								"{{incidentId}}",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Update Incident Status to RESOLVED",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"status\": \"RESOLVED\",\n    \"notes\": \"Fire fully extinguished. Scene cleared.\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"incidents",
-								"{{incidentId}}",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Fetch Incident Details",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"incidents",
-								"{{incidentId}}"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List Incidents",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{bearerToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/api/v1/incidents",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"incidents"
-							]
-						}
+						"description": "Checks out firefighter. Distance from station coordinates (37.7749, -122.4194) to check-out location (37.7756, -122.4194) is approx 77m. Since it is within the 500m geofence, status updates to COMPLETED."
 					},
 					"response": []
 				}
@@ -893,7 +817,22 @@
 			"type": "string"
 		},
 		{
-			"key": "bearerToken",
+			"key": "adminId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "adminToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "firefighterId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "firefighterToken",
 			"value": "",
 			"type": "string"
 		},
