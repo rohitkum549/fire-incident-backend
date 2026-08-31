@@ -1,7 +1,11 @@
 package com.company.firemanagement.security.jwt;
 
 import com.company.firemanagement.security.principal.UserPrincipal;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.JWSVerifier;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
@@ -26,6 +30,31 @@ public class JwtTokenProvider {
 
     @Value("${app.security.jwt.secret}")
     private String jwtSecret;
+
+    @Value("${app.security.jwt.expiration-ms}")
+    private long jwtExpirationMs;
+
+    public String generateToken(String userId, String email, List<String> roles) {
+        try {
+            JWSSigner signer = new MACSigner(jwtSecret.getBytes());
+            
+            JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+                    .subject(userId)
+                    .issueTime(new Date())
+                    .expirationTime(new Date(System.currentTimeMillis() + jwtExpirationMs))
+                    .claim("email", email)
+                    .claim("roles", roles)
+                    .build();
+            
+            SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+            signedJWT.sign(signer);
+            
+            return signedJWT.serialize();
+        } catch (Exception e) {
+            log.error("Failed to generate JWT token: {}", e.getMessage());
+            throw new RuntimeException("JWT generation failed", e);
+        }
+    }
 
     public boolean validateToken(String token) {
         try {

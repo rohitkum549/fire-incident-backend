@@ -1,24 +1,160 @@
-### E2E Health Check (Public)
-# Verifies REST mapping, PostgreSQL connection status, and transaction-bound auditing fields
+### 1. E2E Health Check (Public)
+# Verifies database connection and JPA auditing
 GET http://localhost:8080/api/v1/health
 Accept: application/json
 
-### Actuator Health (Public)
+### 2. Actuator Health (Public)
 # Returns liveness, readiness, and basic component checks
 GET http://localhost:8080/actuator/health
 Accept: application/json
 
-### Actuator Prometheus Metrics (Public)
-# Returns system and custom metrics formatted for Prometheus scrapers
-GET http://localhost:8080/actuator/prometheus
-Accept: text/plain
-
-### OpenAPI Specifications JSON (Public)
-# Exposes the OpenAPI v3 spec models for generating clients
+### 3. OpenAPI Specifications JSON (Public)
+# Exposes the OpenAPI v3 spec models
 GET http://localhost:8080/v3/api-docs
 Accept: application/json
 
-### Secured Route Verification (Expects 401 Unauthorized ErrorResponse)
-# Verifies that security configurations block requests lacking authentication tokens
-GET http://localhost:8080/api/v1/incidents
-Accept: application/json
+### 4. Create Country
+# Creates United States in geography hierarchy
+POST http://localhost:8080/api/v1/geography/countries
+Content-Type: application/json
+
+{
+  "name": "United States",
+  "iso_code": "USA"
+}
+
+### 5. Create State
+# Creates California state linked to country
+POST http://localhost:8080/api/v1/geography/states
+Content-Type: application/json
+
+{
+  "country_id": "PASTE_COUNTRY_ID_HERE",
+  "name": "California",
+  "code": "CA"
+}
+
+### 6. Create City
+# Creates San Francisco city linked to state
+POST http://localhost:8080/api/v1/geography/cities
+Content-Type: application/json
+
+{
+  "state_id": "PASTE_STATE_ID_HERE",
+  "name": "San Francisco"
+}
+
+### 7. Create Fire Station
+# Creates physical fire station core connector
+POST http://localhost:8080/api/v1/stations
+Content-Type: application/json
+
+{
+  "cityId": "PASTE_CITY_ID_HERE",
+  "name": "SFFD Station 1",
+  "address": "251 Lafayette St, San Francisco",
+  "latitude": 37.774900,
+  "longitude": -122.419400
+}
+
+### 8. Register Citizen (Onboarding)
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "citizen_jane",
+  "email": "jane@example.com",
+  "password": "Password123!",
+  "first_name": "Jane",
+  "last_name": "Doe",
+  "phone_number": "+15550199",
+  "role_names": ["ROLE_CITIZEN"]
+}
+
+### 9. Register Firefighter (Employee Onboarding)
+POST http://localhost:8080/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "username": "firefighter_bob",
+  "email": "bob@example.com",
+  "password": "Password123!",
+  "first_name": "Bob",
+  "last_name": "Builder",
+  "phone_number": "+15550299",
+  "role_names": ["ROLE_FIREFIGHTER"],
+  "station_id": "PASTE_STATION_ID_HERE",
+  "employee_code": "EMP-99881"
+}
+
+### 10. Login (Authentication - returns JWT)
+# Exposes token to be pasted as Bearer authorization below
+POST http://localhost:8080/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "username": "firefighter_bob",
+  "password": "Password123!"
+}
+
+### 11. Shift Check-in (Firefighter authorized)
+POST http://localhost:8080/api/v1/shifts/check-in
+Authorization: Bearer PASTE_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "employee_id": "PASTE_EMPLOYEE_ID_HERE",
+  "station_id": "PASTE_STATION_ID_HERE",
+  "check_in_latitude": 37.774900,
+  "check_in_longitude": -122.419400
+}
+
+### 12. Shift Check-out (Firefighter authorized - within 500m geofence)
+# Expects shift status: COMPLETED
+PATCH http://localhost:8080/api/v1/shifts/check-out
+Authorization: Bearer PASTE_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "shift_id": "PASTE_SHIFT_ID_HERE",
+  "check_out_latitude": 37.775600,
+  "check_out_longitude": -122.419400
+}
+
+### 13. Submit Complaint (Citizen role)
+POST http://localhost:8080/api/v1/complaints
+Content-Type: application/json
+
+{
+  "reporterId": "PASTE_CITIZEN_ID_HERE",
+  "categoryId": "PASTE_CATEGORY_ID_HERE",
+  "latitude": 37.774900,
+  "longitude": -122.419400,
+  "severity": "HIGH",
+  "description": "Structure fire reported near Lafeyette Street."
+}
+
+### 14. Escalate to Incident (Admin role)
+POST http://localhost:8080/api/v1/incidents
+Authorization: Bearer PASTE_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "complaintId": "PASTE_COMPLAINT_ID_HERE",
+  "stationId": "PASTE_STATION_ID_HERE",
+  "categoryId": "PASTE_CATEGORY_ID_HERE",
+  "severity": "HIGH",
+  "latitude": 37.774900,
+  "longitude": -122.419400,
+  "notes": "Escalated by station dispatcher."
+}
+
+### 15. Update Incident Status to RESOLVED (Firefighter/Admin role)
+PATCH http://localhost:8080/api/v1/incidents/PASTE_INCIDENT_ID_HERE/status
+Authorization: Bearer PASTE_JWT_TOKEN_HERE
+Content-Type: application/json
+
+{
+  "status": "RESOLVED",
+  "notes": "Fire extinguished successfully. Scene cleared."
+}

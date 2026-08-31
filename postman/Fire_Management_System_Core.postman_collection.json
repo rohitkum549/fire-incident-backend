@@ -1,0 +1,921 @@
+{
+	"info": {
+		"_postman_id": "b968ac8f-1c4b-4c07-9273-04d112d7c99e",
+		"name": "Fire Management System - Core Operations",
+		"description": "Production-grade Postman collection for the global Fire Management System, covering geography, onboarding, shifts, complaints, and incident lifecycles.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health & Diagnostics",
+			"item": [
+				{
+					"name": "E2E Health Verification",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"health"
+							]
+						},
+						"description": "Hits the public health verification endpoint, performing a write/read roundtrip to PostgreSQL and validating JPA auditing."
+					},
+					"response": []
+				},
+				{
+					"name": "Actuator Health",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actuator/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actuator",
+								"health"
+							]
+						},
+						"description": "Checks system liveness, readiness, and basic component indicators."
+					},
+					"response": []
+				},
+				{
+					"name": "OpenAPI Spec JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/v3/api-docs",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"v3",
+								"api-docs"
+							]
+						},
+						"description": "Exposes the raw OpenAPI 3.0 spec JSON."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Geography & Stations",
+			"item": [
+				{
+					"name": "Register Country",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"countryId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"United States\",\n    \"iso_code\": \"USA\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/geography/countries",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"geography",
+								"countries"
+							]
+						},
+						"description": "Registers a country boundary."
+					},
+					"response": []
+				},
+				{
+					"name": "Register State",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"stateId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"country_id\": \"{{countryId}}\",\n    \"name\": \"California\",\n    \"code\": \"CA\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/geography/states",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"geography",
+								"states"
+							]
+						},
+						"description": "Registers a state boundary linked to country."
+					},
+					"response": []
+				},
+				{
+					"name": "Register City",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"cityId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"state_id\": \"{{stateId}}\",\n    \"name\": \"San Francisco\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/geography/cities",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"geography",
+								"cities"
+							]
+						},
+						"description": "Registers a city linked to state."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Fire Station",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"stationId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"cityId\": \"{{cityId}}\",\n    \"name\": \"SFFD Station 1\",\n    \"address\": \"251 Lafayette St, San Francisco\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/stations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"stations"
+							]
+						},
+						"description": "Registers a physical fire station core connector."
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Station",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/stations/{{stationId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"stations",
+								"{{stationId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Stations",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/stations",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"stations"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication & Onboarding",
+			"item": [
+				{
+					"name": "Register Citizen",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"citizenId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"citizen_jane\",\n    \"email\": \"jane@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\",\n    \"phone_number\": \"+15550199\",\n    \"role_names\": [\"ROLE_CITIZEN\"]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Onboards a public citizen account."
+					},
+					"response": []
+				},
+				{
+					"name": "Register Firefighter (Employee)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"employeeId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"firefighter_bob\",\n    \"email\": \"bob@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Bob\",\n    \"last_name\": \"Builder\",\n    \"phone_number\": \"+15550299\",\n    \"role_names\": [\"ROLE_FIREFIGHTER\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-99881\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Onboards a firefighter linked to physical station."
+					},
+					"response": []
+				},
+				{
+					"name": "Register Admin (Employee)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin_alice\",\n    \"email\": \"alice@example.com\",\n    \"password\": \"Password123!\",\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Smith\",\n    \"phone_number\": \"+15550399\",\n    \"role_names\": [\"ROLE_ADMIN\"],\n    \"station_id\": \"{{stationId}}\",\n    \"employee_code\": \"EMP-11223\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Onboards a station administrator."
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Fetch JWT Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.access_token) {",
+									"    pm.collectionVariables.set(\"bearerToken\", jsonData.access_token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"firefighter_bob\",\n    \"password\": \"Password123!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Authenticates user and returns JWT token."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Employee Shift Management",
+			"item": [
+				{
+					"name": "Shift Check-in",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"shiftId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"employee_id\": \"{{employeeId}}\",\n    \"station_id\": \"{{stationId}}\",\n    \"check_in_latitude\": 37.774900,\n    \"check_in_longitude\": -122.419400\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/shifts/check-in",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shifts",
+								"check-in"
+							]
+						},
+						"description": "Creates shift record with ACTIVE status."
+					},
+					"response": []
+				},
+				{
+					"name": "Shift Check-out (Within Geofence)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shift_id\": \"{{shiftId}}\",\n    \"check_out_latitude\": 37.775600,\n    \"check_out_longitude\": -122.419400\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/shifts/check-out",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shifts",
+								"check-out"
+							]
+						},
+						"description": "Checks out employee. Updates status to COMPLETED since distance from station (37.7749, -122.4194) is under 500m."
+					},
+					"response": []
+				},
+				{
+					"name": "Shift Check-out (Geofence Failure)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"shift_id\": \"{{shiftId}}\",\n    \"check_out_latitude\": 39.774900,\n    \"check_out_longitude\": -122.419400\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/shifts/check-out",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"shifts",
+								"check-out"
+							]
+						},
+						"description": "Checks out employee. Updates status to ABNORMAL since distance is over 500m."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Incident & Complaint Operations",
+			"item": [
+				{
+					"name": "Submit Complaint (Public / Citizen)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"complaintId\", jsonData.id);",
+									"    pm.collectionVariables.set(\"categoryId\", jsonData.categoryId);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reporterId\": \"{{citizenId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"severity\": \"HIGH\",\n    \"description\": \"Large smoke billowing from commercial structure.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/complaints",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"complaints"
+							]
+						},
+						"description": "Registers a public complaint. Status: PENDING."
+					},
+					"response": []
+				},
+				{
+					"name": "Escalate Complaint to Incident (Admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if(jsonData.id) {",
+									"    pm.collectionVariables.set(\"incidentId\", jsonData.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"complaintId\": \"{{complaintId}}\",\n    \"stationId\": \"{{stationId}}\",\n    \"categoryId\": \"{{categoryId}}\",\n    \"severity\": \"HIGH\",\n    \"latitude\": 37.774900,\n    \"longitude\": -122.419400,\n    \"notes\": \"Escalated by dispatcher. Engine 1 dispatched.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents"
+							]
+						},
+						"description": "Creates incident response. Escales complaint status to APPROVED."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Incident Status to IN_PROGRESS",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"IN_PROGRESS\",\n    \"notes\": \"Responding units are active on site.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents",
+								"{{incidentId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Incident Status to RESOLVED",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"RESOLVED\",\n    \"notes\": \"Fire fully extinguished. Scene cleared.\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}/status",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents",
+								"{{incidentId}}",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Incident Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents/{{incidentId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents",
+								"{{incidentId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Incidents",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{bearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/v1/incidents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"incidents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "countryId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "stateId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "cityId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "stationId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "citizenId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "employeeId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "bearerToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "shiftId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "complaintId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "categoryId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "incidentId",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
