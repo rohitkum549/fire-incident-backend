@@ -1,0 +1,15 @@
+spring:
+  jpa:
+    properties:
+      hibernate:
+        show_sql: false
+        format_sql: false
+  flyway:
+    clean-disabled: true # Prevent clean operations in production database
+
+logging:
+  level:
+    root: INFO
+    com.company.firemanagement: INFO
+    org.springframework: WARN
+    org.hibernate: WARN

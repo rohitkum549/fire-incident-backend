@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+    "-//Checkstyle//DTD Suppressions 1.1//EN"
+    "https://checkstyle.org/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Suppress standard checks for target directory / generated files -->
+    <suppress files=".*[/\\]target[/\\]generated-sources[/\\].*" checks=".*" />
+    <suppress files=".*IT\.java" checks=".*" />
+    <suppress files=".*Test\.java" checks=".*" />
+    <!-- Relax Javadoc requirements for the bootstrap foundation -->
+    <suppress files=".*" checks="JavadocPackage" />
+    <suppress files=".*" checks="JavadocMethod" />
+    <suppress files=".*" checks="JavadocType" />
+    <suppress files=".*" checks="JavadocVariable" />
+    <suppress files=".*" checks="MissingJavadocMethod" />
+    <suppress files=".*" checks="InvalidJavadocPosition" />
+    <suppress files=".*" checks="SummaryJavadoc" />
+    <!-- Allow long lines for imports and URLs -->
+    <suppress files=".*" checks="LineLength" />
+    <!-- Suppress formatting and indentation checks to match project's style -->
+    <suppress files=".*" checks="Indentation" />
+    <suppress files=".*" checks="AbbreviationAsWordInName" />
+    <suppress files=".*" checks="AvoidStarImport" />
+    <suppress files=".*" checks="NeedBraces" />
+    <suppress files=".*" checks="ImportOrder" />
+    <suppress files=".*" checks="CustomImportOrder" />
+    <suppress files=".*" checks="MultipleVariableDeclarations" />
+    <suppress files=".*" checks="OverloadMethodsDeclarationOrder" />
+</suppressions>

@@ -1,0 +1,26 @@
+# Environment secrets
+.env
+.env.local
+
+# Maven build outputs
+target/
+*.jar
+*.war
+*.ear
+
+# IDE and Project files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.settings/
+.classpath
+.project
+.factorypath
+
+# OS and system files
+.DS_Store
+Thumbs.db
+log/
+*.log

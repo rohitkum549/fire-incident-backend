@@ -1,0 +1,395 @@
+openapi: 3.0.3
+info:
+  title: Fire Management System Core API
+  version: 1.0.0
+  description: Production-grade RESTful API specification for the global Fire Management System, covering onboarding, authentication, and employee shift tracking.
+servers:
+  - url: /api/v1
+    description: v1 Base URL
+paths:
+  /auth/register:
+    post:
+      summary: Register a new user
+      description: Onboards a new user with dynamic role assignment (Citizen, Employee, Admin).
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Username or email already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      summary: Authenticate user
+      description: Returns a JWT access token with role claims embedded.
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /shifts/check-in:
+    post:
+      summary: Employee shift check-in
+      description: Logs a new shift check-in event with timestamp, station reference, and GPS coordinates.
+      operationId: checkInShift
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInRequest'
+      responses:
+        '201':
+          description: Check-in recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftResponse'
+        '400':
+          description: Invalid check-in request (e.g. employee already checked in)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (insufficient permissions)
+
+  /shifts/check-out:
+    patch:
+      summary: Employee shift check-out
+      description: Logs the shift check-out event, completing the active shift log.
+      operationId: checkOutShift
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckOutRequest'
+      responses:
+        '200':
+          description: Check-out recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShiftResponse'
+        '400':
+          description: Invalid check-out request (e.g. no active shift found)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden (insufficient permissions)
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - username
+        - password
+        - first_name
+        - last_name
+        - role_names
+      properties:
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          format: password
+          example: SuperSecure123!
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        phone_number:
+          type: string
+          example: "+15550199"
+        role_names:
+          type: array
+          items:
+            type: string
+          example: ["ROLE_FIREFIGHTER"]
+        station_id:
+          type: string
+          format: uuid
+          example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+        employee_code:
+          type: string
+          example: "EMP-94821"
+
+    RegisterResponse:
+      type: object
+      required:
+        - id
+        - email
+        - username
+        - first_name
+        - last_name
+        - roles
+        - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-4956-b51c-a1141e7d0a22"
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        username:
+          type: string
+          example: johndoe
+        first_name:
+          type: string
+          example: John
+        last_name:
+          type: string
+          example: Doe
+        phone_number:
+          type: string
+          nullable: true
+          example: "+15550199"
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["ROLE_FIREFIGHTER"]
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-08-31T20:30:00Z"
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          format: password
+          example: SuperSecure123!
+
+    LoginResponse:
+      type: object
+      required:
+        - access_token
+        - token_type
+        - expires_in
+        - roles
+      properties:
+        access_token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJqb2huZG9lIiwicm9sZXMiOlsiUk9MRV9GSVJFRklHSFRFUiJdLCJpYXQiOjE3MDk4NTYwMDB9..."
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+        roles:
+          type: array
+          items:
+            type: string
+          example: ["ROLE_FIREFIGHTER"]
+
+    CheckInRequest:
+      type: object
+      required:
+        - employee_id
+        - station_id
+        - check_in_latitude
+        - check_in_longitude
+      properties:
+        employee_id:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-4956-b51c-a1141e7d0a22"
+        station_id:
+          type: string
+          format: uuid
+          example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+        check_in_latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          example: 37.7749
+        check_in_longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          example: -122.4194
+
+    CheckOutRequest:
+      type: object
+      required:
+        - shift_id
+        - check_out_latitude
+        - check_out_longitude
+      properties:
+        shift_id:
+          type: string
+          format: uuid
+          example: "f2c3a504-20a2-4a0b-9273-04d112d7c044"
+        check_out_latitude:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+          example: 37.7749
+        check_out_longitude:
+          type: number
+          format: float
+          minimum: -180
+          maximum: 180
+          example: -122.4194
+
+    ShiftResponse:
+      type: object
+      required:
+        - id
+        - employee_id
+        - station_id
+        - check_in_time
+        - check_in_latitude
+        - check_in_longitude
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "f2c3a504-20a2-4a0b-9273-04d112d7c044"
+        employee_id:
+          type: string
+          format: uuid
+          example: "d3b07384-d113-4956-b51c-a1141e7d0a22"
+        station_id:
+          type: string
+          format: uuid
+          example: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11"
+        check_in_time:
+          type: string
+          format: date-time
+          example: "2026-08-31T08:00:00Z"
+        check_out_time:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-08-31T17:00:00Z"
+        check_in_latitude:
+          type: number
+          example: 37.7749
+        check_in_longitude:
+          type: number
+          example: -122.4194
+        check_out_latitude:
+          type: number
+          nullable: true
+          example: 37.7750
+        check_out_longitude:
+          type: number
+          nullable: true
+          example: -122.4193
+        status:
+          type: string
+          enum: [ACTIVE, COMPLETED, ABNORMAL]
+          example: COMPLETED
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-08-31T08:00:01Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-08-31T17:00:01Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+        - path
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          example: "2026-08-31T20:30:15Z"
+        status:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Bad Request
+        message:
+          type: string
+          example: Validation failed for field 'email'
+        path:
+          type: string
+          example: /api/v1/auth/register
