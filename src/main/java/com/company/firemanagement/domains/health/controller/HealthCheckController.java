@@ -51,15 +51,16 @@ public class HealthCheckController {
         Map<String, Object> result = new HashMap<>();
         result.put("status", "UP");
         result.put("database", "CONNECTED");
-        result.put("verifiedAudit", Map.of(
-                "recordId", retrieved.getId(),
-                "status", retrieved.getStatus(),
-                "checkedAt", retrieved.getCheckedAt(),
-                "createdAt", retrieved.getCreatedAt(),
-                "createdBy", retrieved.getCreatedBy(),
-                "updatedAt", retrieved.getUpdatedAt(),
-                "updatedBy", retrieved.getUpdatedBy()
-        ));
+        Map<String, Object> auditMap = new HashMap<>();
+        auditMap.put("recordId", retrieved.getId());
+        auditMap.put("status", retrieved.getStatus());
+        auditMap.put("checkedAt", retrieved.getCheckedAt());
+        auditMap.put("createdAt", retrieved.getCreatedAt());
+        auditMap.put("createdBy", retrieved.getCreatedBy() != null ? retrieved.getCreatedBy() : "SYSTEM");
+        auditMap.put("updatedAt", retrieved.getUpdatedAt());
+        auditMap.put("updatedBy", retrieved.getUpdatedBy() != null ? retrieved.getUpdatedBy() : "SYSTEM");
+
+        result.put("verifiedAudit", auditMap);
 
         log.info("E2E database check succeeded for ID: {}", logId);
         return ResponseEntity.ok(result);
