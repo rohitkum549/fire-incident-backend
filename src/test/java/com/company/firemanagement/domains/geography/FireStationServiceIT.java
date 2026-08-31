@@ -43,10 +43,7 @@ public class FireStationServiceIT extends BaseIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        fireStationRepository.deleteAll();
-        cityRepository.deleteAll();
-        stateRepository.deleteAll();
-        countryRepository.deleteAll();
+        cleanDatabase();
     }
 
     @Test

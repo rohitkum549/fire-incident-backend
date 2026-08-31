@@ -72,13 +72,7 @@ public class ShiftManagementIT extends BaseIntegrationTest {
 
     @BeforeEach
     public void setUp() {
-        employeeShiftRepository.deleteAll();
-        employeeProfileRepository.deleteAll();
-        userRepository.deleteAll();
-        fireStationRepository.deleteAll();
-        cityRepository.deleteAll();
-        stateRepository.deleteAll();
-        countryRepository.deleteAll();
+        cleanDatabase();
 
         // Setup base geography & station
         Country country = fireStationService.createCountry("United States", "USA");
