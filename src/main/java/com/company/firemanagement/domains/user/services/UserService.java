@@ -131,6 +131,7 @@ public class UserService {
         log.info("Authenticating user: {}", request.getUsername());
 
         User user = userRepository.findByUsername(request.getUsername())
+                .or(() -> userRepository.findByEmail(request.getUsername()))
                 .orElseThrow(() -> new BaseException(ErrorCode.UNAUTHORIZED, HttpStatus.UNAUTHORIZED, "Invalid username or password"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
@@ -161,7 +162,17 @@ public class UserService {
                 .accessToken(token)
                 .tokenType("Bearer")
                 .expiresIn(jwtExpirationMs / 1000)
+                .id(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .roles(roleNames)
                 .build();
+    }
+
+    public void logoutUser(String token) {
+        log.info("Processing user session logout for token payload");
+        // In stateless JWT authentication, logout invalidates client side token session and logs correlation
     }
 }

@@ -33,4 +33,11 @@ public class AuthController {
         LoginResponse response = userService.loginUser(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<java.util.Map<String, String>> logout(@RequestHeader(value = "Authorization", required = false) String token) {
+        log.info("REST request to logout active user session");
+        userService.logoutUser(token);
+        return ResponseEntity.ok(java.util.Collections.singletonMap("message", "Logged out successfully"));
+    }
 }
